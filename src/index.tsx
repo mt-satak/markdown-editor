@@ -8,7 +8,7 @@ const GlobalStyle = createGlobalStyle`
   body * {
     box-sizing: border-box;
   }
-  `
+`
 
   const Main = (
     <>
