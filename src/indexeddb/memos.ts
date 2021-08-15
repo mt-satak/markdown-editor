@@ -25,12 +25,33 @@ export const putMemo = async (title: string, text: string): Promise<void> => {
   await memos.put({ datetime, title, text })
 }
 
+const NUM_PER_PAGE: number = 10
+
 /**
- * indexedDBからテキスト履歴をリストで取得し結果を返却する
- * 返却するリストは日付の降順(新しい順)・配列形式
+ * 履歴ページのページ総件数を計算し、結果を返却する
+ * 
+ * @returns {Promise<number>} pageCount
+ */
+export const getMemoPageCount = async (): Promise<number> => {
+  const totalCount = await memos.count()
+  const pageCount = Math.ceil(totalCount / NUM_PER_PAGE)
+
+  return pageCount > 0 ? pageCount : 1
+}
+
+/**
+ * indexedDBからテキスト履歴をリストで取得し結果を配列形式で返却する
+ * 返却するリストの仕様は下記の通り
+ * - 日付の降順(新しい順)
+ * - リストの取得開始位置から10件
  * 
  * @returns {Array}
  */
-export const getMemos = (): Promise<MemoRecord[]> => {
-  return memos.orderBy('datetime').reverse().toArray()
+export const getMemos = (page: number): Promise<MemoRecord[]> => {
+  const offset = (page - 1) * NUM_PER_PAGE
+  return memos.orderBy('datetime')
+    .reverse()
+    .offset(offset)
+    .limit(NUM_PER_PAGE)
+    .toArray()
 }
